@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { useMessagesWebSockets } from "../hooks/use-messages-websockets";
 import { getRoomMessages } from "../http/get-room-messages";
 import { Message } from "./message";
 
@@ -15,9 +16,15 @@ export const Messages = () => {
     queryFn: () => getRoomMessages({ roomId }),
   })
 
+  useMessagesWebSockets({ roomId })
+
+  const sortedMessages = data.messages.sort((a, b) => {
+    return b.amountOfReactions - a.amountOfReactions
+  })
+
   return (
     <ol className="list-decimal list-outside px-3 space-y-8">
-      {data.messages.map(message => {
+      {sortedMessages.map(message => {
         return (
           <Message
             key={message.id}
