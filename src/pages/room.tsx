@@ -15,7 +15,7 @@ export const Room = () => {
     } else {
       navigator.clipboard.writeText(url)
 
-      toast.info('The room URL was copied to your clipboard!')
+      toast.info('O link da sala foi copiado para a área de transferência!')
     }
   }
 
