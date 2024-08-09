@@ -20,14 +20,6 @@ export function useMessagesWebSockets({
   useEffect(() => {
     const ws = new WebSocket(`ws//localhost:8080/subscribe/${roomId}`)
 
-    ws.onopen = () => {
-      console.log('WS connected')
-    }
-
-    ws.onclose = () => {
-      console.log('WS closed')
-    }
-
     ws.onmessage = (event) => {
       const data: WebhookMessage = JSON.parse(event.data)
 
