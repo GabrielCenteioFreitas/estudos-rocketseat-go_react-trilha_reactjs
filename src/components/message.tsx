@@ -1,17 +1,52 @@
 import { ArrowUp } from "lucide-react";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { createMessageReaction } from "../http/create-message-reaction";
+import { removeMessageReaction } from "../http/remove-message-reaction";
 
 interface MessageProps {
+  id: string;
   text: string;
   amountOfReactions: number;
   answered?: boolean;
 }
 
-export const Message = ({ text, amountOfReactions, answered=false }: MessageProps) => {
+export const Message = ({
+  id: messageId,
+  text,
+  amountOfReactions,
+  answered=false,
+}: MessageProps) => {
+  const { roomId } = useParams();
   const [hasReacted, setHasReacted] = useState(false)
 
-  function handleReactToMessage() {
+  if (!roomId) {
+    throw new Error('Messages components must be used within room page')
+  }
+
+  async function createMessageReactionAction() {
+    if (!roomId) return;
+
+    try {
+      await createMessageReaction({ messageId, roomId })
+    } catch {
+      toast.error('Falha ao reagir, tente novamente!')
+    }
+
     setHasReacted(true)
+  }
+
+  async function removeMessageReactionAction() {
+    if (!roomId) return;
+
+    try {
+      await removeMessageReaction({ messageId, roomId })
+    } catch {
+      toast.error('Falha ao remover reação, tente novamente!')
+    }
+
+    setHasReacted(false)
   }
 
   return (
@@ -19,12 +54,20 @@ export const Message = ({ text, amountOfReactions, answered=false }: MessageProp
       {text}
 
       {hasReacted ? (
-        <button type="button" className="mt-3 flex items-center gap-2 text-zinc-400 hover:text-zinc-300 text-sm font-medium">
+        <button
+          onClick={removeMessageReactionAction}
+          type="button"
+          className="mt-3 flex items-center gap-2 text-zinc-400 hover:text-zinc-300 text-sm font-medium"
+        >
           <ArrowUp className="size-4" />
           Curtir pergunta ({amountOfReactions})
         </button>
       ) : (
-        <button onClick={handleReactToMessage} type="button" className="mt-3 flex items-center gap-2 text-orange-400 hover:text-orange-500 text-sm font-medium">
+        <button
+          onClick={createMessageReactionAction}
+          type="button"
+          className="mt-3 flex items-center gap-2 text-orange-400 hover:text-orange-500 text-sm font-medium"
+        >
           <ArrowUp className="size-4" />
           Curtir pergunta ({amountOfReactions})
         </button>
